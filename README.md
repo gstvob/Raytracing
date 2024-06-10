@@ -1,2 +1,2 @@
-# Raytracing
-Basic raytracer built using C++ and SDL
+# RayTracing
+A Raytracer project using C++ and SDL
