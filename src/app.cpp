@@ -23,6 +23,11 @@ App::App() : m_Window(nullptr, SDL_DestroyWindow), m_Renderer(nullptr, SDL_Destr
 
 void App::run() {
 	m_Running = true;
+	
+
+	m_World.addHittable(std::make_shared<Sphere>(Point3(0.0, 0.0, -1), 0.5));
+	m_World.addHittable(std::make_shared<Sphere>(Point3(0.0, -100.5, -1), 100));
+
 	while (m_Running) {
 		SDL_SetRenderDrawColor(m_Renderer.get(), 0, 0, 0, 255);
 		SDL_RenderClear(m_Renderer.get());
@@ -36,12 +41,14 @@ void App::update() {
 }
 
 void App::render() {
-	for (auto x = 0; x < window::width; x++) {
-		for (auto y = 0; y < window::height; y++) {
-			Color color(double(x) / (window::width - 1), double(y) / (window::height - 1), 0);
-			renderColor(*m_Renderer.get(), color, {double(x), double(y), 0});
-			/*SDL_SetRenderDrawColor(m_Renderer.get(), x, y, 153, 255);
-			SDL_RenderDrawPoint(m_Renderer.get(), x, y);*/
+	for (auto y = 0; y < window::height; y++) {
+		for (auto x = 0; x < window::width; x++) {
+			Vec3 pixelCenter = firstPixelLocation + (x * viewport::pixelDeltaU) + (y * viewport::pixelDeltaV);
+			Vec3 rayDirection = pixelCenter - camera::center;
+			Ray ray(camera::center, rayDirection);
+
+			Color pixelColor(calculateColor(ray, m_World));
+			renderColor(*m_Renderer.get(), pixelColor, {double(x), double(y), 0});
 		}
 	}
 

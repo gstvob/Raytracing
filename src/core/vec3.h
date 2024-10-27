@@ -14,7 +14,7 @@ public:
 	double y() const { return m_Vals[1]; }
 	double z() const { return m_Vals[2]; }
 
-	Vec3 operator-() const { return Vec3(-m_Vals[0], -m_Vals[1], m_Vals[2]); }
+	Vec3 operator-() const { return Vec3(-m_Vals[0], -m_Vals[1], -m_Vals[2]); }
 	double operator[](int i) const { return m_Vals[i]; }
 	double& operator[](int i) { return m_Vals[i]; }
 
@@ -34,12 +34,12 @@ public:
 		return *this *= (1 / t);
 	}
 
-	double length_squared() const {
+	double lenghtSquared () const {
 		return m_Vals[0] * m_Vals[0] + m_Vals[1] * m_Vals[1] + m_Vals[2] * m_Vals[2];
 	}
 
 	double length() const {
-		return sqrt(length_squared());
+		return sqrt(lenghtSquared());
 	}
 private:
 	double m_Vals[3];
@@ -51,7 +51,7 @@ inline std::ostream& operator<<(std::ostream& out, const Vec3& v) {
 	return out << v.x() << " " << v.y() << " " << v.z();
 }
 inline Vec3 operator+(const Vec3& a, const Vec3& b) {
-	return Vec3(a.x() + b.x(), a.y() + b.y(), a.z() + a.z());
+	return Vec3(a.x() + b.x(), a.y() + b.y(), a.z() + b.z());
 }
 inline Vec3 operator-(const Vec3& a, const Vec3& b) {
 	return Vec3(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
@@ -67,7 +67,7 @@ inline Vec3 operator/(const Vec3& v, double t) {
 }
 
 inline double dot(const Vec3& a, const Vec3& b) {
-	return a.x() * b.x() + a.y() * b.y() + a.z() + b.z();
+	return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
 }
 inline Vec3 cross(const Vec3& a, const Vec3& b) {
 	return Vec3(a.y() * b.z() - a.z() * b.y(),
