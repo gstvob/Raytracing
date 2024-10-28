@@ -12,8 +12,8 @@
 #include "core/ray.h"
 #include "core/hittable.h"
 #include "core/primitives.h"
-// Classe vai cuidar da criação da janela, e renderização (não vou criar um renderer separado)
-// 
+#include "camera.h"
+
 class App {
 
 public:
@@ -26,5 +26,6 @@ private:
 	std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> m_Window;
 	std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> m_Renderer;
 	HittableList m_World;
+	Camera m_Camera;
 	bool m_Running;
 };

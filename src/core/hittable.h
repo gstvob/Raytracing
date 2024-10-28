@@ -1,7 +1,9 @@
 #pragma once
 #include "ray.h"
+#include "../definitions.h"
 #include <memory>
 #include <vector>
+
 
 struct HitRecord {
 	Point3 point;
@@ -19,7 +21,7 @@ struct HitRecord {
 class Hittable {
 public:
 	virtual ~Hittable() = default;
-	virtual bool Hit(const Ray& r, double rayTMin, double rayTMax, HitRecord& record) const = 0;
+	virtual bool Hit(const Ray& r, Interval rayInterval, HitRecord& record) const = 0;
 };
 
 
@@ -34,13 +36,13 @@ struct HittableList {
 		hittableObjects.push_back(object);
 	}
 
-	bool checkHits(const Ray& r, double rayTMin, double rayTMax, HitRecord& record) {
+	bool checkHits(const Ray& r, Interval rayInterval, HitRecord& record) const {
 		HitRecord temporaryRecord;
 		bool anyHits = false;
-		double closestHit = rayTMax;
+		double closestHit = rayInterval.max;
 
 		for (const auto& object : hittableObjects) {
-			if (object->Hit(r, rayTMin, closestHit, temporaryRecord)) {
+			if (object->Hit(r, Interval{ rayInterval.min, closestHit }, temporaryRecord)) {
 				anyHits = true;
 				closestHit = record.t;
 				record = temporaryRecord;

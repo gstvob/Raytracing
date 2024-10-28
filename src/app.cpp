@@ -1,6 +1,6 @@
 #include "app.h"
 
-App::App() : m_Window(nullptr, SDL_DestroyWindow), m_Renderer(nullptr, SDL_DestroyRenderer), m_Running(true) {
+App::App() : m_Window(nullptr, SDL_DestroyWindow), m_Renderer(nullptr, SDL_DestroyRenderer), m_Running(true), m_Camera(Camera()) {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cout << "Erro ao iniciar SDL" << std::endl;
 		exit(1);
@@ -27,12 +27,11 @@ void App::run() {
 
 	m_World.addHittable(std::make_shared<Sphere>(Point3(0.0, 0.0, -1), 0.5));
 	m_World.addHittable(std::make_shared<Sphere>(Point3(0.0, -100.5, -1), 100));
-
+	SDL_SetRenderDrawColor(m_Renderer.get(), 0, 0, 0, 255);
+	SDL_RenderClear(m_Renderer.get());
+	render();
 	while (m_Running) {
-		SDL_SetRenderDrawColor(m_Renderer.get(), 0, 0, 0, 255);
-		SDL_RenderClear(m_Renderer.get());
 		update();
-		render();
 	}
 }
 
@@ -41,17 +40,7 @@ void App::update() {
 }
 
 void App::render() {
-	for (auto y = 0; y < window::height; y++) {
-		for (auto x = 0; x < window::width; x++) {
-			Vec3 pixelCenter = firstPixelLocation + (x * viewport::pixelDeltaU) + (y * viewport::pixelDeltaV);
-			Vec3 rayDirection = pixelCenter - camera::center;
-			Ray ray(camera::center, rayDirection);
-
-			Color pixelColor(calculateColor(ray, m_World));
-			renderColor(*m_Renderer.get(), pixelColor, {double(x), double(y), 0});
-		}
-	}
-
+	m_Camera.Render(m_World, *m_Renderer.get());
 	SDL_RenderPresent(m_Renderer.get());
 }
 

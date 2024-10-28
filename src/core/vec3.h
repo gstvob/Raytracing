@@ -4,6 +4,16 @@
 #include <math.h>
 #include <iostream>
 
+inline double randomDouble() {
+	// Random number in [0, 1)
+	return std::rand() / (RAND_MAX + 1.0);
+}
+
+inline double randomDouble(double min, double max) {
+	// Random number in [min, max)
+	return min + (max - min) * randomDouble();
+}
+
 class Vec3 {
 
 public:
@@ -41,6 +51,15 @@ public:
 	double length() const {
 		return sqrt(lenghtSquared());
 	}
+
+	static Vec3 Random() {
+		return Vec3(randomDouble(), randomDouble(), randomDouble());
+	}
+
+	static Vec3 Random(double min, double max) {
+		return Vec3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
+	}
+
 private:
 	double m_Vals[3];
 };
@@ -77,4 +96,28 @@ inline Vec3 cross(const Vec3& a, const Vec3& b) {
 
 inline Vec3 to_unit(const Vec3& v) {
 	return v / v.length();
+}
+
+
+inline Vec3 randomUnitVector() {
+	while (true) {
+		Vec3 p = Vec3::Random(-1, 1);
+		double lensq = p.lenghtSquared();
+		// Here theres a chance that a sqrt of a small enough value rounds to 0
+		// thus making a division by 0, by being greater than 10^-160 i guarantee that 
+		// it is never happening
+
+		if (10e-160 < lensq && lensq <= 1) {
+			return p / sqrt(lensq);
+		}
+	}
+}
+
+inline Vec3 randomOnHemisphere(const Vec3& normal) {
+	Vec3 onUnitSphere = randomUnitVector();
+	if (dot(onUnitSphere, normal) > 0.0) {
+		return onUnitSphere;
+	} else {
+		return -onUnitSphere;
+	}
 }

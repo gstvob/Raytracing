@@ -3,6 +3,7 @@
 #include "core/vec3.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <memory>
 
 // The actual window(image) size
@@ -37,9 +38,43 @@ namespace viewport {
 const Vec3 insetHalfAPixel = (0.5 * (viewport::pixelDeltaU + viewport::pixelDeltaV));
 const Vec3 firstPixelLocation = viewport::upperLeft + insetHalfAPixel;
 
+const int samplesPerPixel = 10;
+const double pixelSampleScale = 1.0 / double(samplesPerPixel);
+const int maxDepth = 50;
+
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
 
-inline double degrees_to_radians(double degrees) {
+inline double degreesToRadians(double degrees) {
 	return degrees * pi / 180.0;
 }
+
+struct Interval {
+	double min, max;
+
+	double Size() const {
+		return max - min;
+	}
+
+	bool Contains(double x) const {
+		return min <= x && x <= max;
+	}
+	bool Surrounds(double x) const {
+		return min < x && x < max;
+	}
+	
+	double Clamp(double x) const {
+		if (x < min) return min;
+		if (x > max) return max;
+		return x;
+	}
+};
+
+const Interval empty{
+	infinity,
+	-infinity
+};
+const Interval universe{
+	-infinity,
+	infinity
+};
