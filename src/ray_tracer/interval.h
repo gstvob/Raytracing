@@ -1,31 +1,27 @@
-#pragma once
-
-#include "core/vec3.h"
+#ifndef INTERVAL_H
+#define INTERVAL_H
 
 #include <cmath>
 #include <cstdlib>
 #include <memory>
 
-
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
+
+const int samplesPerPixel = 500;
+const double pixelSampleScale = 1.0 / double(samplesPerPixel);
+const int maxDepth = 50;
 
 inline double degreesToRadians(double degrees) {
 	return degrees * pi / 180.0;
 }
 
-// The actual window(image) size
-// Given that i have a desired aspect ratio and width, i can calculate the window height (i.e the image's height)
-namespace window {
-	constexpr int width = 1200;
-	constexpr double aspectRatio = 16.0 / 9.0;
-	constexpr int height = int(window::width / aspectRatio);
+inline double linearToGamma(double linearComponent) {
+	if (linearComponent > 0) {
+		return std::sqrt(linearComponent);
+	}
+	return 0;
 }
-
-const int samplesPerPixel = 100;
-const double pixelSampleScale = 1.0 / double(samplesPerPixel);
-const int maxDepth = 50;
-
 
 struct Interval {
 	double min, max;
@@ -56,3 +52,6 @@ const Interval universe{
 	-infinity,
 	infinity
 };
+
+
+#endif

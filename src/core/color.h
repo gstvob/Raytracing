@@ -28,6 +28,12 @@ inline double linearToGamma(double linearComponent) {
 }
 
 
+struct Pixel {
+	Color pixelColor;
+	double x;
+	double y;
+};
+
 inline void renderColor(SDL_Renderer& renderer, const Color& color, const Vec3& position) {
 
 	const Interval intensity{ 0.000, 0.999 };

@@ -13,6 +13,10 @@ public:
 	Vec3 at(double t) const {
 		return m_Origin + t * m_Direction;
 	}
+
+	void SetOrigin(const Vec3& origin) { m_Origin = origin;  }
+	void SetDirection(const Vec3& direction) { m_Direction = direction; }
+
 private:
 	Vec3 m_Origin;
 	Vec3 m_Direction;

@@ -1,9 +1,8 @@
-#pragma once
 
 #include "app.h"
 
 int main() {
-	App app;
-	app.run();
-	return 0;
+    App app(800, 450); // 16/9 ratio
+    app.run();
+    return 0;
 }

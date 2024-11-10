@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef VEC3_H
+#define VEC3_H
 
 #include <math.h>
 #include <iostream>
@@ -17,27 +17,23 @@ inline double randomDouble(double min, double max) {
 class Vec3 {
 
 public:
-	Vec3() : m_Vals{ 0.0, 0.0, 0.0 } {}
-	Vec3(double v1, double v2, double v3) : m_Vals{ v1, v2 ,v3 } {}
+	double x, y, z;
 
-	double x() const { return m_Vals[0]; }
-	double y() const { return m_Vals[1]; }
-	double z() const { return m_Vals[2]; }
+	Vec3(): x( 0.0 ), y(0.0), z(0.0) {}
+	Vec3(double v1, double v2, double v3) : x( v1), y(v2) ,z(v3)  {}
 
-	Vec3 operator-() const { return Vec3(-m_Vals[0], -m_Vals[1], -m_Vals[2]); }
-	double operator[](int i) const { return m_Vals[i]; }
-	double& operator[](int i) { return m_Vals[i]; }
+	Vec3 operator-() const { return Vec3(-x, -y, -z); }
 
 	Vec3& operator+=(const Vec3& v) {
-		m_Vals[0] += v[0];
-		m_Vals[1] += v[1];
-		m_Vals[2] += v[2];
+		x += v.x;
+		y += v.y;
+		z += v.z;
 		return *this;
 	}
 	Vec3& operator*= (const double t) {
-		m_Vals[0] *= t;
-		m_Vals[1] *= t;
-		m_Vals[2] *= t;
+		x *= t;
+		y *= t;
+		z *= t;
 		return *this;
 	}
 	Vec3& operator/=(double t) {
@@ -45,61 +41,64 @@ public:
 	}
 
 	double lenghtSquared () const {
-		return m_Vals[0] * m_Vals[0] + m_Vals[1] * m_Vals[1] + m_Vals[2] * m_Vals[2];
+		return x * x + y * y + z * z;
 	}
 
 	double length() const {
 		return sqrt(lenghtSquared());
 	}
 
-	static Vec3 Random() {
+	static Vec3 random() {
 		return Vec3(randomDouble(), randomDouble(), randomDouble());
 	}
 
-	static Vec3 Random(double min, double max) {
+	static Vec3 random(double min, double max) {
 		return Vec3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
 	}
 
 	bool nearZero() const {
 		auto s = 1e-8;
-		return (std::fabs(m_Vals[0]) < s) && (std::fabs(m_Vals[1]) < s) && (std::fabs(m_Vals[2]) < s);
+		return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
 	}
-
-private:
-	double m_Vals[3];
 };
 
+/*
+* These aliases are just for ease of comprehension of the code, given that functionally they are the same thing, but semantically they differ
+* i.e A color is defined by (R,G,B) tuple, a Point is a (X,Y,Z) point in space, and vector is a direction pointing to (X,Y,Z)
+*/
+
 using Point3 = Vec3;
+using Color = Vec3;
 
 inline std::ostream& operator<<(std::ostream& out, const Vec3& v) {
-	return out << v.x() << " " << v.y() << " " << v.z();
+	return out << v.x << " " << v.y << " " << v.z;
 }
 inline Vec3 operator+(const Vec3& a, const Vec3& b) {
-	return Vec3(a.x() + b.x(), a.y() + b.y(), a.z() + b.z());
+	return Vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 inline Vec3 operator-(const Vec3& a, const Vec3& b) {
-	return Vec3(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
+	return Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 inline Vec3 operator*(double t, const Vec3& v) {
-	return Vec3(t * v.x(), t * v.y(), t * v.z());
+	return Vec3(t * v.x, t * v.y, t * v.z);
 }
 inline Vec3 operator*(const Vec3& v, double t) {
 	return t * v;
 }
 inline Vec3 operator*(const Vec3& u, const Vec3& v) {
-	return Vec3(u.x() * v.x(), u.y() * v.y(), u.z() * v.z());
+	return Vec3(u.x * v.x, u.y * v.y, u.z * v.z);
 }
 inline Vec3 operator/(const Vec3& v, double t) {
 	return (1 / t) * v;
 }
 
 inline double dot(const Vec3& a, const Vec3& b) {
-	return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
+	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 inline Vec3 cross(const Vec3& a, const Vec3& b) {
-	return Vec3(a.y() * b.z() - a.z() * b.y(),
-		a.z() * b.x() - a.x() * b.z(),
-		a.x() * b.y() - a.y() * b.x());
+	return Vec3(a.y * b.z - a.z * b.y,
+		a.z * b.x - a.x * b.z,
+		a.x * b.y - a.y * b.x);
 }
 
 inline Vec3 to_unit(const Vec3& v) {
@@ -122,7 +121,7 @@ inline Vec3 refract(const Vec3& uv, const Vec3& n, double refractionIndex) {
 
 inline Vec3 randomUnitVector() {
 	while (true) {
-		Vec3 p = Vec3::Random(-1, 1);
+		Vec3 p = Vec3::random(-1, 1);
 		double lensq = p.lenghtSquared();
 		// Here theres a chance that a sqrt of a small enough value rounds to 0
 		// thus making a division by 0, by being greater than 10^-160 i guarantee that 
@@ -151,3 +150,9 @@ inline Vec3 randomUnitDisk() {
 		}
 	}
 }
+
+inline Vec3 sampleSquare() {
+	return Vec3(randomDouble() - 0.5, randomDouble() - 0.5, 0);
+}
+
+#endif

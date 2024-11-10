@@ -1,23 +1,11 @@
 #include "camera.h"
+#include <algorithm>
+#include <execution>
 
-void Camera::Render(const HittableList& world, SDL_Renderer& renderer) {
-	for (auto y = 0; y < window::height; y++) {
-		for (auto x = 0; x < window::width; x++) {
-			
-			Color pixelColor(0, 0, 0);
+void Camera::Render(SDL_Renderer& renderer) {
 
-			for (int sample = 0; sample < samplesPerPixel; sample++) {
-				Ray r = getRay(int(x), int(y));
-				pixelColor = pixelColor + rayColor(r, maxDepth, world);
-			}
-			
-			/*Vec3 pixelCenter = firstPixelLocation + (x * viewport::pixelDeltaU) + (y * viewport::pixelDeltaV);
-			Vec3 rayDirection = pixelCenter - camera::center;
-			Ray ray(camera::center, rayDirection);*/
-
-			//Color pixelColor(rayColor(ray, world));
-			renderColor(renderer, double(pixelSampleScale) * pixelColor, { double(x), double(y), 0 });
-		}
+	for (const auto& pixel : pixelsToRender) {
+		renderColor(renderer, pixel.pixelColor, { pixel.x, pixel.y, 0.0 });
 	}
 }
 
@@ -27,9 +15,13 @@ Color Camera::rayColor(const Ray& ray, int depth, const HittableList& world) con
 
 	HitRecord record;
 	if (world.checkHits(ray, Interval{ 0.001, infinity }, record)) {
-		//Vec3 direction = randomOnHemisphere(record.normal);
-		Vec3 direction = record.normal + randomUnitVector();
-		return 0.5 * rayColor(Ray(record.point, direction), depth - 1, world);
+		Ray scattered{};
+
+		if (record.material.get()->Scatter(ray, record, scattered)) {
+			return record.material.get()->GetAlbedo() * rayColor(scattered, depth - 1, world);
+		}
+		return Color(0, 0, 0);
+	
 	}
 
 	Vec3 unitDirection = to_unit(ray.direction());
@@ -41,10 +33,10 @@ Color Camera::rayColor(const Ray& ray, int depth, const HittableList& world) con
 Ray Camera::getRay(int i, int j) const {
 	Vec3 offset = sampleSquare();
 	Vec3 samplePixelLocation = firstPixelLocation +
-		((i + offset.x()) * viewport::pixelDeltaU) + 
-		((j + offset.y()) * viewport::pixelDeltaV);
+		((i + offset.x()) * this->pixelDeltaU) + 
+		((j + offset.y()) * this->pixelDeltaV);
 
-	Vec3 rayOrigin = camera::center;
+	Vec3 rayOrigin = (defocusAngle <= 0) ? this->center : defocusDiskSample();
 	Vec3 rayDirection = samplePixelLocation - rayOrigin;
 	
 	return Ray(rayOrigin, rayDirection);
